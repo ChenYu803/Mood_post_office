@@ -99,22 +99,10 @@ router.post('/', auth, async (req, res) => {
     }
 
     const hasCrisis = CRISIS_KEYWORDS.some(keyword => content.includes(keyword));
-    if (hasCrisis) {
-      return res.json({ 
-        code: 200, 
-        message: '发布成功',
-        crisis: true,
-        data: { crisis: true }
-      });
-    }
 
-    let anonymousCode;
-    if (isAnonymous) {
-      anonymousCode = "匿名邮民";
-    } else {
-      const user = await User.findById(req.user._id);
-      anonymousCode = user.nickname || user.username;
-    }
+    const anonymousCode = isAnonymous
+      ? generateAnonymousCode()
+      : (await User.findById(req.user._id))?.nickname || req.user.username;
 
     const treehole = new Treehole({
       userId: req.user._id,
@@ -126,10 +114,20 @@ router.post('/', auth, async (req, res) => {
     });
 
     await treehole.save();
-    res.status(201).json({ 
-      code: 201, 
+
+    if (hasCrisis) {
+      return res.json({
+        code: 200,
+        message: '发布成功',
+        crisis: true,
+        data: { crisis: true, treehole }
+      });
+    }
+
+    res.status(201).json({
+      code: 201,
       message: '发布成功，内容正在审核中',
-      data: treehole 
+      data: treehole
     });
   } catch (error) {
     console.error('Create treehole error:', error);
@@ -231,22 +229,22 @@ router.post('/:id/like', auth, async (req, res) => {
     }
 
     const user = await User.findById(req.user._id);
-    const likedTreeholes = user.likedTreeholes || [];
-    const treeholeIndex = likedTreeholes.indexOf(req.params.id);
+    const alreadyLiked = (user.likedTreeholes || []).includes(req.params.id);
 
-    if (treeholeIndex > -1) {
-      likedTreeholes.splice(treeholeIndex, 1);
-      treehole.likeCount = Math.max(0, treehole.likeCount - 1);
+    if (alreadyLiked) {
+      await Promise.all([
+        User.findByIdAndUpdate(req.user._id, { $pull: { likedTreeholes: req.params.id } }),
+        Treehole.findByIdAndUpdate(req.params.id, { $inc: { likeCount: -1 } })
+      ]);
     } else {
-      likedTreeholes.push(req.params.id);
-      treehole.likeCount += 1;
+      await Promise.all([
+        User.findByIdAndUpdate(req.user._id, { $addToSet: { likedTreeholes: req.params.id } }),
+        Treehole.findByIdAndUpdate(req.params.id, { $inc: { likeCount: 1 } })
+      ]);
     }
 
-    user.likedTreeholes = likedTreeholes;
-    await user.save();
-    await treehole.save();
-
-    res.json({ code: 200, data: { liked: treeholeIndex === -1, likeCount: treehole.likeCount } });
+    const updatedTreehole = await Treehole.findById(req.params.id);
+    res.json({ code: 200, data: { liked: !alreadyLiked, likeCount: updatedTreehole.likeCount } });
   } catch (error) {
     res.status(500).json({ code: 500, message: '操作失败' });
   }

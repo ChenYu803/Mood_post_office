@@ -10,7 +10,7 @@ const auth = async (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.userId);
-    
+
     if (!user) {
       return res.status(401).json({ code: 401, message: '用户不存在' });
     }
@@ -19,6 +19,12 @@ const auth = async (req, res, next) => {
     req.token = token;
     next();
   } catch (error) {
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ code: 401, message: '登录已过期，请重新登录' });
+    }
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(401).json({ code: 401, message: '无效的认证信息' });
+    }
     res.status(401).json({ code: 401, message: '认证失败' });
   }
 };

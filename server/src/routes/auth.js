@@ -12,8 +12,16 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ code: 400, message: '用户名和密码不能为空' });
     }
 
+    if (username.length < 3 || username.length > 20) {
+      return res.status(400).json({ code: 400, message: '用户名需要3-20个字符' });
+    }
+
     if (password.length < 6) {
       return res.status(400).json({ code: 400, message: '密码至少6位' });
+    }
+
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ code: 400, message: '邮箱格式不正确' });
     }
 
     const existingUser = await User.findOne({ username });

@@ -9,8 +9,8 @@ const articleSchema = new mongoose.Schema({
   category: { type: String, default: '情绪管理' },
   readCount: { type: Number, default: 0 },
   commentCount: { type: Number, default: 0 },
-  status: { type: String, enum: ['草稿', '已发布', 'pending', '已下架'], default: '已发布' },
-  author: { type: String, default: '官方' },
+  status: { type: String, enum: ['草稿', '已发布', '待审核', '已下架', '已驳回'], default: '已发布' },
+  author: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });

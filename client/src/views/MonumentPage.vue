@@ -25,10 +25,10 @@
         <div class="monument-content">
           <div v-if="activeTab === 'bookmarks'" class="bookmarks-section">
             <div class="bookmarks-tabs">
-              <button :class="['bookmarks-tab', { active: bookmarkType === 'articles' }]" @click="bookmarkType = 'articles'; fetchBookmarks()">
+              <button :class="['bookmarks-tab', { active: bookmarkType === 'article' }]" @click="bookmarkType = 'article'; fetchBookmarks()">
                 文章收藏
               </button>
-              <button :class="['bookmarks-tab', { active: bookmarkType === 'treeholes' }]" @click="bookmarkType = 'treeholes'; fetchBookmarks()">
+              <button :class="['bookmarks-tab', { active: bookmarkType === 'treehole' }]" @click="bookmarkType = 'treehole'; fetchBookmarks()">
                 心声收藏
               </button>
             </div>
@@ -41,21 +41,21 @@
             <div v-else class="bookmarks-list">
               <div v-for="item in bookmarks" :key="item._id" class="bookmark-card" :class="{ 'bookmark-card--delisted': item.delisted }" @click="goToDetail(item)">
                 <div class="bookmark-card__header">
-                  <span v-if="bookmarkType === 'articles'" class="bookmark-type-tag article-tag">📚</span>
+                  <span v-if="bookmarkType === 'article'" class="bookmark-type-tag article-tag">📚</span>
                   <span v-else class="bookmark-type-tag treehole-tag">🌙</span>
-                  <span v-if="bookmarkType === 'articles'" class="bookmark-category">{{ item.category }}</span>
-                  <span v-if="bookmarkType === 'articles' && item.emotion" class="emotion-tag" :class="`emotion-tag--${item.emotion}`">{{ item.emotion }}</span>
-                  <span v-else-if="bookmarkType === 'treeholes'" class="emotion-tag" :class="`emotion-tag--${item.emotion}`">{{ getEmotionText(item.emotion) }}</span>
+                  <span v-if="bookmarkType === 'article'" class="bookmark-category">{{ item.category }}</span>
+                  <span v-if="bookmarkType === 'article' && item.emotion" class="emotion-tag" :class="`emotion-tag--${item.emotion}`">{{ item.emotion }}</span>
+                  <span v-else-if="bookmarkType === 'treehole'" class="emotion-tag" :class="`emotion-tag--${item.emotion}`">{{ getEmotionText(item.emotion) }}</span>
                   <span v-if="item.delisted" class="delisted-tag">已下架</span>
                 </div>
                 <h3 class="bookmark-card__title">{{ item.title || truncate(item.content, 30) }}</h3>
-                <p class="bookmark-card__desc" v-if="!item.delisted">{{ bookmarkType === 'articles' ? item.summary : truncate(item.content, 60) }}</p>
+                <p class="bookmark-card__desc" v-if="!item.delisted">{{ bookmarkType === 'article' ? item.summary : truncate(item.content, 60) }}</p>
                 <p class="bookmark-card__delisted-notice" v-if="item.delisted">该内容已被下架，无法查看原文</p>
                 <div class="bookmark-card__footer">
-                  <span v-if="bookmarkType === 'articles' && !item.delisted" class="bookmark-author">作者：{{ item.author?.nickname || '管理员' }}</span>
+                  <span v-if="bookmarkType === 'article' && !item.delisted" class="bookmark-author">作者：{{ item.author?.nickname || '管理员' }}</span>
                   <span class="bookmark-date">{{ formatTime(item.createdAt) }}</span>
-                  <span v-if="bookmarkType === 'articles' && item.readCount" class="bookmark-stats">👁️ {{ item.readCount }}</span>
-                  <span v-if="bookmarkType === 'articles' && item.likeCount" class="bookmark-stats">❤️ {{ item.likeCount }}</span>
+                  <span v-if="bookmarkType === 'article' && item.readCount" class="bookmark-stats">👁️ {{ item.readCount }}</span>
+                  <span v-if="bookmarkType === 'article' && item.likeCount" class="bookmark-stats">❤️ {{ item.likeCount }}</span>
                   <button v-if="item.delisted" class="bookmark-remove delisted-remove" @click.stop="removeBookmark(item)">删除此收藏</button>
                   <button v-else class="bookmark-remove" @click.stop="removeBookmark(item)">取消收藏</button>
                 </div>
@@ -150,7 +150,7 @@ const router = useRouter()
 const userStore = useUserStore()
 
 const activeTab = ref('bookmarks')
-const bookmarkType = ref('articles')
+const bookmarkType = ref('article')
 const bookmarks = ref([])
 const notes = ref([])
 const history = ref([])
@@ -221,7 +221,7 @@ async function removeBookmark(item) {
       cancelButtonText: '取消'
     })
     
-    const type = bookmarkType.value === 'articles' ? 'article' : 'treehole'
+    const type = bookmarkType.value === 'article' ? 'article' : 'treehole'
     await api.delete(`/users/bookmarks/${type}/${item._id}`)
     
     bookmarks.value = bookmarks.value.filter(b => b._id !== item._id)
@@ -277,7 +277,7 @@ async function deleteNote(note) {
 
 function goToDetail(item) {
   if (item.delisted) return
-  if (item.type === 'article' || bookmarkType.value === 'articles') {
+  if (item.type === 'article' || bookmarkType.value === 'article') {
     router.push(`/study/${item._id}`)
   } else {
     router.push(`/plaza/${item._id}`)

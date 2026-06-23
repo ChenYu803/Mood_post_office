@@ -38,8 +38,7 @@ router.get('/', optionalAuth, async (req, res) => {
 
 router.get('/admin/pending', auth, adminAuth, async (req, res) => {
   try {
-    console.log('GET /articles/admin/pending');
-    const articles = await Article.find({ status: 'pending' }).populate('author', 'nickname').sort({ createdAt: 1 });
+    const articles = await Article.find({ status: '待审核' }).populate('author', 'nickname').sort({ createdAt: 1 });
     res.json({ code: 200, data: articles });
   } catch (error) {
     res.status(500).json({ code: 500, message: '获取失败' });
@@ -48,14 +47,11 @@ router.get('/admin/pending', auth, adminAuth, async (req, res) => {
 
 router.get('/admin/pending-comments', auth, adminAuth, async (req, res) => {
   try {
-    console.log('GET /articles/admin/pending-comments');
     const comments = await Comment.find({ status: '待审核', articleId: { $exists: true } })
       .populate('userId', 'nickname')
       .sort({ createdAt: 1 });
-    console.log('Found article comments:', comments.length);
     res.json({ code: 200, data: comments });
   } catch (error) {
-    console.error('Error fetching pending comments:', error);
     res.status(500).json({ code: 500, message: '获取失败' });
   }
 });
@@ -117,7 +113,7 @@ router.post('/submit', auth, async (req, res) => {
       emotion: emotion || '平静',
       category: category || '情绪管理',
       author: req.user._id,
-      status: 'pending'
+      status: '待审核'
     });
 
     await article.save();
@@ -143,13 +139,13 @@ router.post('/', auth, adminAuth, async (req, res) => {
       content,
       emotion: emotion || '平静',
       category: category || '情绪管理',
+      author: req.user._id,
       status: '已发布'
     });
 
     await article.save();
     res.status(201).json({ code: 201, message: '创建成功', data: article });
   } catch (error) {
-    console.error('Create article error:', error);
     res.status(500).json({ code: 500, message: '创建失败' });
   }
 });
@@ -238,22 +234,22 @@ router.post('/:id/like', auth, async (req, res) => {
     }
 
     const user = await User.findById(req.user._id);
-    const likedArticles = user.likedArticles || [];
-    const articleIndex = likedArticles.indexOf(req.params.id);
+    const alreadyLiked = (user.likedArticles || []).includes(req.params.id);
 
-    if (articleIndex > -1) {
-      likedArticles.splice(articleIndex, 1);
-      article.likeCount = Math.max(0, article.likeCount - 1);
+    if (alreadyLiked) {
+      await Promise.all([
+        User.findByIdAndUpdate(req.user._id, { $pull: { likedArticles: req.params.id } }),
+        Article.findByIdAndUpdate(req.params.id, { $inc: { likeCount: -1 } })
+      ]);
     } else {
-      likedArticles.push(req.params.id);
-      article.likeCount += 1;
+      await Promise.all([
+        User.findByIdAndUpdate(req.user._id, { $addToSet: { likedArticles: req.params.id } }),
+        Article.findByIdAndUpdate(req.params.id, { $inc: { likeCount: 1 } })
+      ]);
     }
 
-    user.likedArticles = likedArticles;
-    await user.save();
-    await article.save();
-
-    res.json({ code: 200, data: { liked: articleIndex === -1, likeCount: article.likeCount } });
+    const updatedArticle = await Article.findById(req.params.id);
+    res.json({ code: 200, data: { liked: !alreadyLiked, likeCount: updatedArticle.likeCount } });
   } catch (error) {
     res.status(500).json({ code: 500, message: '操作失败' });
   }
@@ -309,8 +305,7 @@ router.get('/:id/bookmark/status', auth, async (req, res) => {
 router.post('/:id/comments', auth, async (req, res) => {
   try {
     const { content } = req.body;
-    console.log('POST /articles/:id/comments - articleId:', req.params.id, 'content:', content);
-    
+
     if (!content || !content.trim()) {
       return res.status(400).json({ code: 400, message: '评论内容不能为空' });
     }
@@ -328,11 +323,8 @@ router.post('/:id/comments', auth, async (req, res) => {
     });
 
     await comment.save();
-    console.log('Comment saved:', comment._id, 'articleId:', comment.articleId, 'status:', comment.status);
-    
     res.json({ code: 200, message: '评论已提交，审核通过后将显示' });
   } catch (error) {
-    console.error('Error saving comment:', error);
     res.status(500).json({ code: 500, message: '评论失败' });
   }
 });

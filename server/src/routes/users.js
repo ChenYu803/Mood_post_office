@@ -181,11 +181,11 @@ router.get('/bookmarks', auth, async (req, res) => {
     const { type } = req.query;
     const user = await User.findById(req.user._id);
     
-    if (type === 'articles') {
+    if (type === 'article') {
       const articleIds = user.bookmarkedArticles || [];
       const delistedIds = user.bookmarkedArticlesDelisted || [];
-      const articles = await Article.find({ 
-        _id: { $in: articleIds }, 
+      const articles = await Article.find({
+        _id: { $in: articleIds },
         status: { $in: ['已发布', '已下架'] }
       }).sort({ createdAt: -1 });
       const result = articles.map(a => ({
@@ -193,7 +193,7 @@ router.get('/bookmarks', auth, async (req, res) => {
         delisted: delistedIds.includes(a._id.toString())
       }));
       res.json({ code: 200, data: result });
-    } else if (type === 'treeholes') {
+    } else if (type === 'treehole') {
       const treeholeIds = user.bookmarkedTreeholes || [];
       const delistedIds = user.bookmarkedTreeholesDelisted || [];
       const treeholes = await Treehole.find({ 
@@ -279,28 +279,26 @@ router.get('/reading-history', auth, async (req, res) => {
 router.post('/reading-history', auth, async (req, res) => {
   try {
     const { id, type, title, emotion } = req.body;
-    console.log('POST /reading-history - id:', id, 'type:', type, 'title:', title);
-    
+
     if (!id || !type) {
       return res.status(400).json({ code: 400, message: '缺少必要参数' });
     }
-    
+
     const user = await User.findById(req.user._id);
     if (!user) {
-      console.error('User not found:', req.user._id);
       return res.status(404).json({ code: 404, message: '用户不存在' });
     }
-    
+
     user.readingHistory = user.readingHistory || [];
-    
+
     const existingIndex = user.readingHistory.findIndex(
       item => item.id.toString() === id && item.type === type
     );
-    
+
     if (existingIndex > -1) {
       user.readingHistory.splice(existingIndex, 1);
     }
-    
+
     user.readingHistory.unshift({
       id,
       type,
@@ -308,17 +306,15 @@ router.post('/reading-history', auth, async (req, res) => {
       emotion: emotion || '',
       readAt: new Date()
     });
-    
+
     if (user.readingHistory.length > 100) {
       user.readingHistory = user.readingHistory.slice(0, 100);
     }
-    
+
     await user.save();
-    console.log('Reading history saved successfully for user:', user._id);
     res.json({ code: 200, message: '阅读记录已添加' });
   } catch (error) {
-    console.error('Error in POST /reading-history:', error);
-    res.status(500).json({ code: 500, message: '添加失败', error: error.message });
+    res.status(500).json({ code: 500, message: '添加失败' });
   }
 });
 
