@@ -1,0 +1,28 @@
+{
+  "name": "mood-memo-client",
+  "version": "1.0.0",
+  "description": "情绪升华站前端应用",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@tiptap/extension-code-block-lowlight": "^3.23.4",
+    "@tiptap/extension-placeholder": "^3.23.4",
+    "@tiptap/extension-underline": "^3.23.4",
+    "@tiptap/starter-kit": "^3.23.4",
+    "@tiptap/vue-3": "^3.23.4",
+    "axios": "^1.6.2",
+    "element-plus": "^2.4.4",
+    "lowlight": "^3.3.0",
+    "pinia": "^2.1.7",
+    "vue": "^3.3.11",
+    "vue-router": "^4.2.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^4.5.2",
+    "sass": "^1.69.5",
+    "vite": "^5.0.8"
+  }
+}
