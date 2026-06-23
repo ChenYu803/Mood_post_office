@@ -102,10 +102,10 @@ watch(() => route.path, () => {
   top: 0;
   left: 0;
   right: 0;
-  z-index: 1000;
-  background: var(--color-night-blue);
-  backdrop-filter: blur(12px);
-  box-shadow: 0 2px 20px rgba(45, 55, 72, 0.3);
+  z-index: var(--z-sticky);
+  background: rgba(22, 30, 44, 0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-light);
 }
 
 .navbar-container {
@@ -132,10 +132,11 @@ watch(() => route.path, () => {
   }
   
   .brand-text {
+    font-family: var(--font-brand);
     font-size: 20px;
-    font-weight: 400;
-    letter-spacing: 0.05em;
-    color: var(--color-amber-glow);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--color-primary);
   }
 }
 
@@ -148,39 +149,38 @@ watch(() => route.path, () => {
 .nav-items {
   position: relative;
   display: flex;
-  gap: 4px;
-  padding: 6px 8px;
-  background: rgba(45, 55, 72, 0.6);
-  border-radius: 50px;
-  border: 1px solid rgba(212, 165, 116, 0.15);
+  gap: 2px;
+  padding: 5px 6px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-full);
 }
 
 .nav-item {
   position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 10px 18px;
+  padding: 9px 16px;
   text-decoration: none;
-  color: var(--color-moonlight);
-  border-radius: 40px;
-  transition: all 0.3s ease;
-  font-size: 14px;
-  font-weight: 400;
-  letter-spacing: 0.02em;
-  
+  color: var(--color-text-secondary);
+  border-radius: var(--radius-full);
+  transition: color var(--dur-fast) ease;
+  font-size: 13px;
+  font-weight: 500;
+
   &:hover {
-    color: var(--color-amber-glow);
+    color: var(--color-text);
   }
-  
+
   &.active {
-    color: var(--color-amber-glow);
+    color: var(--color-primary);
   }
-  
+
   .nav-icon {
     font-size: 16px;
   }
-  
+
   .nav-text {
     white-space: nowrap;
   }
@@ -188,12 +188,12 @@ watch(() => route.path, () => {
 
 .nav-indicator {
   position: absolute;
-  top: 6px;
-  height: calc(100% - 12px);
-  background: rgba(212, 165, 116, 0.2);
-  border-radius: 40px;
+  top: 5px;
+  height: calc(100% - 10px);
+  background: var(--color-primary-muted);
+  border-radius: var(--radius-full);
   pointer-events: none;
-  box-shadow: 0 2px 8px rgba(212, 165, 116, 0.15);
+  z-index: 0;
 }
 
 .navbar-right {
@@ -207,22 +207,24 @@ watch(() => route.path, () => {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 10px 16px;
+  padding: 9px 16px;
   text-decoration: none;
-  color: var(--color-moonlight);
-  border-radius: 40px;
-  transition: all 0.3s ease;
-  font-size: 14px;
-  
+  color: var(--color-text-secondary);
+  border-radius: var(--radius-full);
+  transition: background var(--dur-fast) ease,
+              color var(--dur-fast) ease;
+  font-size: 13px;
+  font-weight: 500;
+
   &:hover {
-    background: rgba(212, 165, 116, 0.15);
-    color: var(--color-amber-glow);
+    background: var(--color-primary-muted);
+    color: var(--color-primary);
   }
-  
+
   .action-icon {
     font-size: 16px;
   }
-  
+
   .action-text {
     white-space: nowrap;
   }

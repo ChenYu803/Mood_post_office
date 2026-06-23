@@ -244,6 +244,19 @@ async function handleSubmit() {
 
 function startBurnCeremony() {
   showIncineratorDialog.value = true
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  if (prefersReducedMotion) {
+    setTimeout(() => {
+      showBurnFeedback.value = true
+      burnFeedbackText.value = feedbackMessages[Math.floor(Math.random() * feedbackMessages.length)]
+      setTimeout(() => {
+        showIncineratorDialog.value = false
+        showBurnFeedback.value = false
+        resetForm()
+      }, 2000)
+    }, 500)
+    return
+  }
   nextTick(() => {
     initBurnAnimation()
   })
@@ -421,7 +434,7 @@ onUnmounted(() => {
 <style lang="scss" scoped>
 .heart-post-page {
   min-height: 100vh;
-  background: var(--color-night-blue);
+  background: var(--bg-primary);
   display: flex;
   flex-direction: column;
   position: relative;
@@ -453,52 +466,51 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   padding: 28px 20px;
-  background: rgba(45, 55, 72, 0.6);
-  border-radius: 16px;
-  border: 1px solid rgba(212, 165, 116, 0.15);
+  background: var(--bg-elevated);
+  border-radius: var(--radius-lg);
   text-decoration: none;
-  transition: all 0.5s ease;
+  transition: background var(--dur-normal) ease,
+              transform var(--dur-normal) ease;
   overflow: hidden;
   
   .area-icon {
     font-size: 36px;
     margin-bottom: 12px;
-    transition: transform 0.4s ease;
+    transition: transform var(--dur-normal) ease;
   }
-  
+
   .area-title {
-    font-size: 16px;
-    font-weight: 400;
-    color: var(--color-amber-glow);
-    letter-spacing: 0.05em;
-    margin-bottom: 6px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--color-primary);
+    margin-bottom: 4px;
   }
-  
+
   .area-desc {
     font-size: 12px;
-    color: var(--color-moonlight);
-    opacity: 0.7;
+    color: var(--color-text-secondary);
   }
-  
+
   .area-glow {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: radial-gradient(ellipse at center, rgba(212, 165, 116, 0.1) 0%, transparent 70%);
+    background: radial-gradient(ellipse at center, var(--color-primary-glow) 0%, transparent 70%);
     opacity: 0;
-    transition: opacity 0.5s ease;
+    transition: opacity var(--dur-slow) ease;
+    pointer-events: none;
   }
-  
+
   &:hover {
-    transform: translateY(-4px);
-    border-color: rgba(212, 165, 116, 0.3);
-    
+    background: var(--color-primary-muted);
+    transform: translateY(-3px);
+
     .area-icon {
-      transform: scale(1.1);
+      transform: scale(1.08);
     }
-    
+
     .area-glow {
       opacity: 1;
     }
@@ -527,13 +539,12 @@ onUnmounted(() => {
   position: relative;
   width: 100%;
   max-width: 680px;
-  background: linear-gradient(180deg, rgba(250, 246, 240, 0.98) 0%, rgba(245, 240, 232, 0.95) 100%);
-  border-radius: 20px;
+  background: linear-gradient(175deg, var(--bg-paper) 0%, var(--bg-paper-dark) 100%);
+  border-radius: var(--radius-xl);
   padding: 48px 40px 40px;
-  box-shadow: 
-    0 20px 60px rgba(0, 0, 0, 0.4),
-    0 0 100px rgba(212, 165, 116, 0.1);
-  border: 1px solid rgba(212, 165, 116, 0.2);
+  box-shadow:
+    0 24px 64px rgba(0, 0, 0, 0.45),
+    0 0 120px var(--color-primary-glow);
 }
 
 .desk-lamp {
@@ -567,47 +578,47 @@ onUnmounted(() => {
   height: 12px;
   margin: 8px auto;
   cursor: ns-resize;
-  background: rgba(197, 193, 185, 0.3);
+  background: rgba(139, 115, 85, 0.2);
   border-radius: 6px;
-  transition: background 0.3s ease;
+  transition: background var(--dur-fast) ease;
 
   &:hover {
-    background: rgba(212, 165, 116, 0.5);
+    background: var(--color-primary);
   }
 }
 
 :deep(.rich-text-editor) {
-  border-radius: 12px;
+  border-radius: var(--radius-md);
 
   .toolbar {
-    background: rgba(139, 115, 85, 0.15);
-    border-color: rgba(139, 115, 85, 0.2);
+    background: rgba(139, 115, 85, 0.12);
+    border-color: rgba(139, 115, 85, 0.15);
   }
 
   .toolbar-btn {
-    color: #6B5B3D;
+    color: var(--color-text-inverse);
 
     &:hover {
       color: #8B6914;
-      background: rgba(139, 115, 85, 0.15);
+      background: rgba(139, 115, 85, 0.12);
     }
 
     &.is-active {
       color: #8B6914;
-      background: rgba(139, 115, 85, 0.2);
+      background: rgba(139, 115, 85, 0.18);
     }
   }
 
   .separator {
-    background: rgba(139, 115, 85, 0.2);
+    background: rgba(139, 115, 85, 0.15);
   }
 
   .editor-content {
     background: transparent;
-    border-color: rgba(139, 115, 85, 0.15);
+    border-color: rgba(139, 115, 85, 0.12);
 
     :deep(.tiptap) {
-      color: #4A5568;
+      color: var(--color-text-inverse);
 
       h1, h2, h3 {
         color: #3D4A5C;
@@ -619,15 +630,15 @@ onUnmounted(() => {
       }
 
       pre {
-        background: rgba(45, 36, 24, 0.08);
+        background: rgba(45, 36, 24, 0.06);
 
         code {
-          color: #4A5568;
+          color: var(--color-text-inverse);
         }
       }
 
       code {
-        background: rgba(45, 36, 24, 0.08);
+        background: rgba(45, 36, 24, 0.06);
         color: #6B5B3D;
       }
     }
@@ -648,35 +659,36 @@ onUnmounted(() => {
   align-items: center;
   gap: 4px;
   padding: 10px 12px;
-  border-radius: 12px;
-  border: 2px solid var(--color-mist-gray);
-  background: var(--color-cream);
+  border-radius: var(--radius-md);
+  border: 2px solid transparent;
+  background: rgba(139, 115, 85, 0.08);
   cursor: pointer;
-  transition: all 0.3s ease;
-  
+  transition: border-color var(--dur-fast) ease,
+              background var(--dur-fast) ease,
+              transform var(--dur-fast) ease;
+
   .emotion-emoji {
     font-size: 22px;
   }
-  
+
   .emotion-label {
     font-size: 11px;
-    color: var(--color-deep-blue-gray);
+    color: var(--color-text-inverse);
     white-space: nowrap;
   }
-  
+
   &:hover {
     transform: scale(1.05);
-    border-color: var(--color-amber-glow);
+    border-color: var(--border-color);
   }
-  
+
   &.active {
-    border-color: var(--color-amber-glow);
-    background: rgba(212, 165, 116, 0.15);
-    box-shadow: 0 0 20px rgba(212, 165, 116, 0.4);
-    
+    border-color: var(--color-primary);
+    background: var(--color-primary-muted);
+
     .emotion-label {
-      color: var(--color-warm-brown);
-      font-weight: 500;
+      color: var(--color-primary);
+      font-weight: 600;
     }
   }
 }
@@ -685,41 +697,42 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 16px 20px;
-  background: rgba(197, 193, 185, 0.1);
-  border-radius: 12px;
+  padding: 14px 18px;
+  background: rgba(139, 115, 85, 0.06);
+  border-radius: var(--radius-md);
   margin-bottom: 20px;
-  
+
   .intensity-label {
-    font-size: 14px;
-    color: var(--color-moonlight);
+    font-size: 13px;
+    color: var(--color-text-inverse);
     white-space: nowrap;
   }
-  
+
   .intensity-bar {
     flex: 1;
     height: 6px;
     -webkit-appearance: none;
     appearance: none;
-    background: var(--color-mist-gray);
+    background: rgba(139, 115, 85, 0.15);
     border-radius: 3px;
-    
+
     &::-webkit-slider-thumb {
       -webkit-appearance: none;
       width: 18px;
       height: 18px;
-      background: var(--color-amber-glow);
+      background: var(--color-primary);
       border-radius: 50%;
       cursor: pointer;
-      box-shadow: 0 2px 8px rgba(212, 165, 116, 0.4);
+      box-shadow: 0 2px 8px var(--color-primary-glow);
     }
   }
-  
+
   .intensity-val {
-    font-size: 14px;
-    color: var(--color-amber-glow);
+    font-size: 13px;
+    color: var(--color-primary);
     min-width: 40px;
     text-align: right;
+    font-weight: 600;
   }
 }
 
@@ -730,23 +743,22 @@ onUnmounted(() => {
 .story-input {
   width: 100%;
   min-height: 80px;
-  padding: 16px;
-  background: rgba(197, 193, 185, 0.1);
-  border: 1px dashed var(--color-mist-gray);
-  border-radius: 12px;
+  padding: 14px;
+  background: rgba(139, 115, 85, 0.06);
+  border: 1px dashed rgba(139, 115, 85, 0.25);
+  border-radius: var(--radius-md);
   font-size: 14px;
   line-height: 1.6;
-  color: var(--color-deep-blue-gray);
+  color: var(--color-text-inverse);
   resize: none;
-  
+
   &:focus {
     outline: none;
-    border-color: var(--color-amber-glow);
+    border-color: var(--color-primary);
   }
-  
+
   &::placeholder {
-    color: var(--color-ash);
-    font-style: italic;
+    color: var(--color-text-muted);
   }
 }
 
@@ -764,61 +776,64 @@ onUnmounted(() => {
   align-items: center;
   gap: 6px;
   padding: 14px 20px;
-  background: rgba(45, 55, 72, 0.1);
+  background: rgba(139, 115, 85, 0.06);
   border: 2px solid transparent;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all 0.3s ease;
-  
+  transition: border-color var(--dur-fast) ease,
+              background var(--dur-fast) ease;
+
   .dest-icon {
     font-size: 24px;
   }
-  
+
   .dest-label {
     font-size: 12px;
-    color: var(--color-deep-blue-gray);
+    color: var(--color-text-inverse);
   }
-  
+
   &:hover {
-    background: rgba(212, 165, 116, 0.15);
-    border-color: var(--color-amber-glow);
+    background: var(--color-primary-muted);
+    border-color: var(--border-color);
   }
-  
+
   &.active {
-    background: rgba(212, 165, 116, 0.2);
-    border-color: var(--color-amber-glow);
-    
+    background: var(--color-primary-muted);
+    border-color: var(--color-primary);
+
     .dest-label {
-      color: var(--color-warm-brown);
+      color: var(--color-primary);
+      font-weight: 600;
     }
   }
 }
 
 .submit-btn {
   width: 100%;
-  padding: 18px;
-  background: var(--color-mist-gray);
-  color: var(--color-cream);
+  padding: 16px;
+  background: rgba(139, 115, 85, 0.15);
+  color: var(--color-text-secondary);
   border: none;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   font-size: 16px;
-  font-weight: 400;
-  letter-spacing: 0.05em;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.4s ease;
-  
+  transition: background var(--dur-fast) ease,
+              color var(--dur-fast) ease,
+              transform var(--dur-fast) ease;
+
   &:disabled {
-    opacity: 0.5;
+    opacity: 0.4;
     cursor: not-allowed;
   }
-  
+
   &.ready {
-    background: var(--color-warm-brown);
-    box-shadow: 0 4px 20px rgba(139, 115, 85, 0.3);
-    
+    background: var(--color-primary);
+    color: var(--bg-deep);
+
     &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 30px rgba(139, 115, 85, 0.4);
+      background: var(--color-primary-soft);
+      transform: translateY(-1px);
     }
   }
 }
@@ -898,22 +913,20 @@ onUnmounted(() => {
 
 .incinerator-label {
   margin-top: 12px;
-  font-size: 16px;
-  color: var(--color-amber-glow);
-  letter-spacing: 0.1em;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-primary);
 }
 
 .incinerator-hint {
   font-size: 12px;
-  color: var(--color-moonlight);
-  opacity: 0.7;
+  color: var(--color-text-secondary);
 }
 
 .feedback-text {
   font-size: 16px;
-  color: var(--color-candle);
+  color: var(--color-primary-soft);
   text-align: center;
-  letter-spacing: 0.05em;
   animation: fadeIn 0.5s ease;
 }
 
@@ -924,9 +937,9 @@ onUnmounted(() => {
 
 .incinerator-dialog {
   :deep(.el-dialog) {
-    background: rgba(26, 26, 46, 0.98);
-    border-radius: 20px;
-    border: 1px solid rgba(212, 165, 116, 0.2);
+    background: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
   }
   
   :deep(.el-dialog__header) {
@@ -957,9 +970,8 @@ onUnmounted(() => {
   left: 50%;
   transform: translateX(-50%);
   font-size: 18px;
-  color: var(--color-candle);
+  color: var(--color-primary-soft);
   text-align: center;
-  letter-spacing: 0.05em;
   animation: fadeIn 0.8s ease;
 }
 

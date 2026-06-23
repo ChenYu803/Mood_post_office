@@ -367,8 +367,8 @@ watch(() => route.params.id, (newId, oldId) => {
     margin: 1.5em 0;
     padding: 16px 20px;
     background: rgba(212, 165, 116, 0.1);
-    border-left: 3px solid var(--color-amber-glow);
-    border-radius: 0 8px 8px 0;
+    border: 1px solid rgba(212, 165, 116, 0.2);
+    border-radius: var(--radius-md);
     font-style: italic;
     color: #5a4a3a;
   }

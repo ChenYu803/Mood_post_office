@@ -566,8 +566,9 @@ onMounted(() => {
     line-height: 1.5;
     color: var(--color-deep-blue-gray);
     margin-bottom: 12px;
-    padding-left: 12px;
-    border-left: 3px solid var(--color-amber-glow);
+    padding: 12px 14px;
+    background: rgba(212, 165, 116, 0.08);
+    border-radius: var(--radius-sm);
   }
   
   &__footer {

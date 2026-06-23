@@ -656,8 +656,9 @@ onMounted(() => {
     color: var(--color-moonlight);
     line-height: 1.6;
     margin-bottom: 16px;
-    padding-left: 8px;
-    border-left: 2px solid rgba(212, 165, 116, 0.2);
+    padding: 10px 12px;
+    background: rgba(212, 165, 116, 0.06);
+    border-radius: var(--radius-sm);
   }
   
   &__footer {
@@ -991,8 +992,9 @@ onMounted(() => {
   color: #E57373;
   font-size: 13px;
   margin-bottom: 12px;
-  padding-left: 8px;
-  border-left: 2px solid rgba(229, 115, 115, 0.3);
+  padding: 8px 12px;
+  background: rgba(229, 115, 115, 0.08);
+  border-radius: var(--radius-sm);
 }
 
 .delisted-remove {

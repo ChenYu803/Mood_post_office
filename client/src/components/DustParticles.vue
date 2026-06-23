@@ -81,10 +81,14 @@ const handleResize = (canvas) => {
   canvas.height = window.innerHeight
 }
 
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+
 onMounted(() => {
+  if (prefersReducedMotion.matches) return
+
   const canvas = canvasRef.value
   const ctx = canvas.getContext('2d')
-  
+
   handleResize(canvas)
   initParticles(canvas)
   animate(ctx, canvas)
